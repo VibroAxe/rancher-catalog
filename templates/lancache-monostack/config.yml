@@ -1,0 +1,7 @@
+name: lancache-monostack
+description: "Full LanCache Stack for LAN Gaming using the monolithic architecture"
+version: v1.0.0
+category: Caching
+maintainer: Jason Rivers
+license: MIT License
+projectURL: "https://steamcache.net"

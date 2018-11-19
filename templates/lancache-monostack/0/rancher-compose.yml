@@ -1,0 +1,146 @@
+version: '2'
+catalog:
+  name: lancache-monostack
+  version: 1.0.0
+  description: "Full LAN Caching stack for Blizzard, Frontier, Origin, Riot, Steam, Uplay and Windows Updates"
+  questions:
+    - variable: "CACHE_IP"
+      label: IP of this SteamCache to use in DNS
+      required: true
+      type: string
+      default: ""
+    - variable: "UPSTREAM_DNS"
+      label: Upstream DNS Server
+      required: true
+      type: string
+      default: 8.8.8.8
+    - variable: "CACHE_ROOT"
+      label: Cache directory (This should be available on ALL hosts that the caching server might be running on.)
+      required: true
+      type: string
+      default: "/lancache"
+    - variable: "CACHE_DISK_SIZE"
+      label: Available Disk space for cache in megabytes (This will be shared to all cached services)
+      required: true
+      type: int
+      default: 500000
+    - variable: "CACHE_MEM_SIZE"
+      label: Amount of memory for the cache to use in megabytes
+      required: true
+      type: int
+      default: 500
+    - variable: "CACHE_MAX_AGE"
+      label: maximum age of cache files in days
+      required: true
+      type: int
+      default: 3560
+    - variable: "DISABLE_APPLE"
+      label: Disable apple DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_ARENANET"
+      label: Disable arenanet DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_BLIZZARD"
+      label: Disable blizzard DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_DAYBREAK"
+      label: Disable daybreak DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_FRONTIER"
+      label: Disable frontier DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_HIREZ"
+      label: Disable hirez DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_MINECRAFT"
+      label: Disable minecraft DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_NEXUSMODS"
+      label: Disable nexusmods DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_NINTENDO"
+      label: Disable nintendo DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_ORIGIN"
+      label: Disable origin DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_RENEGADEX"
+      label: Disable renegadex DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_RIOT"
+      label: Disable riot DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_ROCKSTAR"
+      label: Disable rockstar DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_SONY"
+      label: Disable sony DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_STEAM"
+      label: Disable steam DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_UPLAY"
+      label: Disable uplay DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_TWITCH"
+      label: Disable twitch DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_WARGAMING"
+      label: Disable wargaming DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_WSUS"
+      label: Disable wsus DNS
+      default: false
+      required: true
+      type: boolean
+    - variable: "DISABLE_XBOXLIVE"
+      label: Disable xboxlive DNS
+      default: false
+      required: true
+      type: boolean
+services:
+  dns:
+    scale: 1
+    start_on_create: true
+  monocache:
+    scale: 1
+    start_on_create: true
+  sniproxy:
+    scale: 1
+    start_on_create: true

@@ -1,0 +1,36 @@
+version: '2'
+catalog:
+  name: lancache-monostack
+  version: 1.0.##TEMPLATEVERSION##
+  description: "Full LAN Caching stack for Blizzard, Frontier, Origin, Riot, Steam, Uplay and Windows Updates"
+  questions:
+    - variable: "CACHE_IP"
+      label: IP of this SteamCache to use in DNS
+      required: true
+      type: string
+      default: ""
+    - variable: "UPSTREAM_DNS"
+      label: Upstream DNS Server
+      required: true
+      type: string
+      default: 8.8.8.8
+    - variable: "CACHE_ROOT"
+      label: Cache directory (This should be available on ALL hosts that the caching server might be running on.)
+      required: true
+      type: string
+      default: "/lancache"
+    - variable: "CACHE_DISK_SIZE"
+      label: Available Disk space for cache in megabytes (This will be shared to all cached services)
+      required: true
+      type: int
+      default: 500000
+    - variable: "CACHE_MEM_SIZE"
+      label: Amount of memory for the cache to use in megabytes
+      required: true
+      type: int
+      default: 500
+    - variable: "CACHE_MAX_AGE"
+      label: maximum age of cache files in days
+      required: true
+      type: int
+      default: 3560

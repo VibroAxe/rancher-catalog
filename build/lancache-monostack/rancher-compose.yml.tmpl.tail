@@ -1,0 +1,10 @@
+services:
+  dns:
+    scale: 1
+    start_on_create: true
+  monocache:
+    scale: 1
+    start_on_create: true
+  sniproxy:
+    scale: 1
+    start_on_create: true

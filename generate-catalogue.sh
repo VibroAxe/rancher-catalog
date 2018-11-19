@@ -3,14 +3,22 @@
 set -e
 
 function build_fullstack() {
+	TEMPLATEDIR=${PWD}/templates/lancache-fullstack/
 
-	TEMPLATEDIR=${1-0}
+	if [[ "x$1" == "x" ]]; then
+		CURRENTHIGH=`ls -d ${TEMPLATEDIR}/*/ | tail -1 | sed 's/.*\([0-9]\).*/\1/g'`
+		TEMPLATEVERSION=$((CURRENTHIGH+1))
+	else
+		TEMPLATEVERSION=${1-0}
+	fi
 
-	mkdir -p ${PWD}/templates/lancache-fullstack/${TEMPLATEDIR}
+	TEMPLATEDIR=${TEMPLATEDIR}/${TEMPLATEVERSION}
+
+	mkdir -p ${TEMPLATEDIR}
 
 
-	DOCKERFILE=${PWD}/templates/lancache-fullstack/${TEMPLATEDIR}/docker-compose.yml
-	RANCHERFILE=${PWD}/templates/lancache-fullstack/${TEMPLATEDIR}/rancher-compose.yml
+	DOCKERFILE=${TEMPLATEDIR}/docker-compose.yml
+	RANCHERFILE=${TEMPLATEDIR}/rancher-compose.yml
 	
 	DOCKER_TEMPLATE=${PWD}/build/lancache-fullstack/docker-compose.yml
 	RANCHER_TEMPLATE=${PWD}/build/lancache-fullstack/rancher-compose.yml
@@ -20,7 +28,7 @@ function build_fullstack() {
 	echo Fullstack Rancherfile: ${RANCHERFILE}
 
 	cat ${DOCKER_TEMPLATE}.tmpl > ${DOCKERFILE}
-	cat ${RANCHER_TEMPLATE}.tmpl | sed "s/version: 1.0./version: 1.0.${TEMPLATEDIR}/" > ${RANCHERFILE}
+	cat ${RANCHER_TEMPLATE}.tmpl | sed "s/##TEMPLATEVERSION/${TEMPLATEVERSION}/g" > ${RANCHERFILE}
 	
 	cat services.json | jq -r '.cache_domains[] | .name, .domain_files[]' | while read L; do
 	#cat services.json | jq -r .cache_domains[].name  | while read SERVICE ; do
@@ -81,14 +89,23 @@ function build_fullstack() {
 }
 
 function build_dns() {
+	TEMPLATEDIR=${PWD}/templates/lancache-fullstack/
 
-	TEMPLATEDIR=${1-0}
-	
-	mkdir -p ${PWD}/templates/lancache-dns/${TEMPLATEDIR}
-	
-	DOCKERFILE=${PWD}/templates/lancache-dns/${TEMPLATEDIR}/docker-compose.yml
-	RANCHERFILE=${PWD}/templates/lancache-dns/${TEMPLATEDIR}/rancher-compose.yml
-	
+	if [[ "x$1" == "x" ]]; then
+		CURRENTHIGH=`ls -d ${TEMPLATEDIR}/*/ | tail -1 | sed 's/.*\([0-9]\).*/\1/g'`
+		TEMPLATEVERSION=$((CURRENTHIGH+1))
+	else
+		TEMPLATEVERSION=${1-0}
+	fi
+
+	TEMPLATEDIR=${TEMPLATEDIR}/${TEMPLATEVERSION}
+
+	mkdir -p ${TEMPLATEDIR}
+
+
+	DOCKERFILE=${TEMPLATEDIR}/docker-compose.yml
+	RANCHERFILE=${TEMPLATEDIR}/rancher-compose.yml
+
 	DOCKER_TEMPLATE=${PWD}/build/lancache-dns/docker-compose.yml
 	RANCHER_TEMPLATE=${PWD}/build/lancache-dns/rancher-compose.yml
 	SERVICES=${PWD}/build/services.yml
@@ -97,7 +114,7 @@ function build_dns() {
 	echo Dns Rancherfile: ${RANCHERFILE}
 
 	cat ${DOCKER_TEMPLATE}.tmpl > ${DOCKERFILE}
-	cat ${RANCHER_TEMPLATE}.tmpl | sed "s/version: 1.0./version: 1.0.${TEMPLATEDIR}/" > ${RANCHERFILE}
+	cat ${RANCHER_TEMPLATE}.tmpl | sed "s/TEMPLATEVERSION/${TEMPLATEVERSION}/g" > ${RANCHERFILE}
 	
 	cat services.json | jq -r '.cache_domains[] | .name' | while read L; do
 	## For each service, we want to add the service to the dockerfile. The default dockerfile should only have the loadbalancer, dns & sni-proxy defined
@@ -122,8 +139,57 @@ function build_dns() {
 
 	done
 
-	cat ${RANCHER_TEMPLATE}.tmpl.tail | sed "s/version: 1.0./version: 1.0.${TEMPLATEDIR}/" >> ${RANCHERFILE}
+	cat ${RANCHER_TEMPLATE}.tmpl.tail | sed "s/##TEMPLATEVERSION##/${TEMPLATEVERSION}/g" >> ${RANCHERFILE}
 
+
+}
+
+function build_monostack() {
+	TEMPLATEDIR=${PWD}/templates/lancache-monostack/
+
+	if [[ "x$1" == "x" ]]; then
+		CURRENTHIGH=`ls -d ${TEMPLATEDIR}/*/ | tail -1 | sed 's/.*\([0-9]\).*/\1/g'`
+		TEMPLATEVERSION=$((CURRENTHIGH+1))
+	else
+		TEMPLATEVERSION=${1-0}
+	fi
+
+	TEMPLATEDIR=${TEMPLATEDIR}/${TEMPLATEVERSION}
+
+	mkdir -p ${TEMPLATEDIR}
+
+	DOCKERFILE=${TEMPLATEDIR}/docker-compose.yml
+	RANCHERFILE=${TEMPLATEDIR}/rancher-compose.yml
+
+	DOCKER_TEMPLATE=${PWD}/build/lancache-monostack/docker-compose.yml
+	RANCHER_TEMPLATE=${PWD}/build/lancache-monostack/rancher-compose.yml
+	SERVICES=${PWD}/build/services.yml
+
+	echo Monostack Dockerfile: ${DOCKERFILE}
+	echo Monostack Rancherfile: ${RANCHERFILE}
+
+	cat ${DOCKER_TEMPLATE}.tmpl > ${DOCKERFILE}
+	cat ${RANCHER_TEMPLATE}.tmpl | sed "s/##TEMPLATEVERSION##/${TEMPLATEVERSION}/g" > ${RANCHERFILE}
+
+	cat services.json | jq -r '.cache_domains[] | .name' | while read L; do
+	## For each service, we want to add the service to the dockerfile. The default dockerfile should only have the loadbalancer, dns & sni-proxy defined
+	    if ! echo ${L} | grep "\.txt" ; then
+			SERVICE=${L}
+	        echo "${SERVICE}"
+		    
+	        echo "      ${SERVICE^^}CACHE_IP: \${CACHE_IP}" >> ${DOCKERFILE}
+	        echo "      DISABLE_${SERVICE^^}: \${DISABLE_${SERVICE^^}}" >> ${DOCKERFILE}
+	    
+	        echo "    - variable: \"DISABLE_${SERVICE^^}\"" >> ${RANCHERFILE}
+	        echo "      label: Disable ${SERVICE} DNS" >> ${RANCHERFILE}
+			echo "      default: false" >> ${RANCHERFILE}
+	        echo "      required: true" >> ${RANCHERFILE}
+	        echo "      type: boolean" >> ${RANCHERFILE}
+		fi
+
+	done
+
+	cat ${RANCHER_TEMPLATE}.tmpl.tail | sed "s/##TEMPLATEVERSION##/${TEMPLATEVERSION}/g" >> ${RANCHERFILE}
 
 }
 
@@ -138,10 +204,14 @@ function main() {
 	elif [[ "${1}" == "dns" ]]; then
 		COMMAND=${2}
 		build_dns $COMMAND;
+	elif [[ "${1}" == "monostack" ]]; then
+		COMMAND=${2}
+		build_monostack $COMMAND;
 	else
 		COMMAND=$1
 		build_fullstack $COMMAND;
 		build_dns $COMMAND;
+		build_monostack $COMMAND;
 	fi
 
 	rm services.json
