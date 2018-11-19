@@ -27,14 +27,17 @@ catalog:
           label: Available Disk space for cache in megabytes
           required: true
           default: 500000
+          type: int
         - variable: "CACHE_MEM_SIZE"
           label: Amount of memory for cache to use in megabytes
           required: true
           default: 500
+          type: int
         - variable: "CACHE_MAX_AGE"
           label: maximum age of cache files in days
           required: true
           default: 3650
+          type: int
 services:
     cache:
         scale: 1
