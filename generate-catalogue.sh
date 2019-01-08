@@ -89,7 +89,7 @@ function build_fullstack() {
 }
 
 function build_dns() {
-	TEMPLATEDIR=${PWD}/templates/lancache-fullstack/
+	TEMPLATEDIR=${PWD}/templates/lancache-dns/
 
 	if [[ "x$1" == "x" ]]; then
 		CURRENTHIGH=`ls -d ${TEMPLATEDIR}/*/ | tail -1 | sed 's/.*\([0-9]\).*/\1/g'`

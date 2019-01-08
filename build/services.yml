@@ -1,0 +1,9 @@
+  apple:
+    scale: 1
+    start_on_create: true
+  arenanet:
+    scale: 1
+    start_on_create: true
+  blizzard:
+    scale: 1
+    start_on_create: true
